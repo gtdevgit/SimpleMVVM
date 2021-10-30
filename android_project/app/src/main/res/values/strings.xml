@@ -1,0 +1,40 @@
+<resources>
+    <string name="app_name">Simple MVVM</string>
+
+    <string name="select_user">Select user</string>
+    <string name="id">Id</string>
+
+    <string name="user_title">User detail</string>
+    <string name="user_id">User id</string>
+    <string name="user_name">Name</string>
+    <string name="user_email">Email</string>
+    <string name="user_phone">Phone</string>
+    <string name="user_id_value">User id value</string>
+    <string name="user_name_value">Name value</string>
+    <string name="user_email_value">Email value</string>
+    <string name="user_phone_value">Phonevalue </string>
+
+    <string name="contract_title">Contract detail</string>
+    <string name="contract_id">Contract id</string>
+    <string name="contract_user_id">User Id</string>
+    <string name="contract_vehicle_id">Vehicle id</string>
+    <string name="contract_entry_date">Date</string>
+    <string name="contract_id_value">Contract id value</string>
+    <string name="contract_user_id_value">Contract user id value</string>
+    <string name="contract_vehicle_id_value">Contract vehicle id value</string>
+    <string name="contract_entry_date_value">Contract date</string>
+
+    <string name="vehicle_title">Vehicle detail</string>
+    <string name="vehicle_id">Vehicle id</string>
+    <string name="vehicle_brand">Brand</string>
+    <string name="vehicle_model">Model</string>
+    <string name="vehicle_mileage">Mileage</string>
+    <string name="vehicle_price">Price</string>
+    <string name="vehicle_id_value">Vehicle id value</string>
+    <string name="vehicle_brand_value">Vehicle brand value</string>
+    <string name="vehicle_model_value">Vehicle model value</string>
+    <string name="vehicle_mileage_value">Vehicle mileage value</string>
+    <string name="vehicle_price_value">Vehicle price value</string>
+
+
+</resources>

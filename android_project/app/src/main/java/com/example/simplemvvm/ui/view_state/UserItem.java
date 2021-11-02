@@ -19,6 +19,10 @@ public class UserItem {
         return name;
     }
 
+    /**
+     * need toString to display user name in TextInputLayout with dropdown mode list
+     * @return
+     */
     @NonNull
     @Override
     public String toString() {

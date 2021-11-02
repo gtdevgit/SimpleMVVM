@@ -1,0 +1,40 @@
+┌──────────┐                     ┌───────────────┐
+│   View   │                     │  View model   │
+└──────────┘                     └───────────────┘
+                List<userItem>
+  observe  ◄───────────────────── getUsersLiveData()
+     │
+     │userItems
+     │
+     ▼
+  onChanged
+    loadDropDown
+
+
+  autoComplete      userId
+    onItemClick ────────────────► setUserId(userId)
+                                      │
+                                      ▼
+                                  userIdMutableLiveData.setValue(id)
+                                      │
+                    userId            ▼
+  observe  ◄───────────────────── getUserIdLiveData()
+     │
+     │userId
+     │
+     ▼
+  onChanged
+     │
+     ▼
+  configureById(userId)─────────► getDetailByUserIdLiveData(UserId)
+                                      │
+                                      │
+                                      │
+                 detail               ▼
+  observer ◄───────────────────── return new Mediator()
+     │                               get user detail
+     │detail                         get contract detail
+     │                               get vehicle detail
+     ▼
+  onChanged
+    load detail

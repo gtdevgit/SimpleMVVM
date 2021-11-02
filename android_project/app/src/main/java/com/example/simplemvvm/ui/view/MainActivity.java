@@ -1,10 +1,14 @@
 package com.example.simplemvvm.ui.view;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -13,7 +17,9 @@ import android.widget.AutoCompleteTextView;
 import android.widget.TextView;
 
 import com.example.simplemvvm.R;
+import com.example.simplemvvm.debug.Tag;
 import com.example.simplemvvm.ui.view_model.MainViewModel;
+import com.example.simplemvvm.ui.view_model_factory.MainViewModelFactory;
 import com.example.simplemvvm.ui.view_state.DetailViewState;
 import com.example.simplemvvm.ui.view_state.UserItem;
 import com.google.android.material.textfield.TextInputLayout;
@@ -40,15 +46,47 @@ public class MainActivity extends AppCompatActivity {
     TextView textViewVehiclePrice;
     TextView textViewVehicleMileage;
 
+    MainViewModel mainViewModel;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d("Tag.TAG", "MainActivity.onCreate() called");
         setContentView(R.layout.activity_main);
 
         configureComponents();
         configureViewModel();
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.d("Tag.TAG", "MainActivity.onStart() called");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d("Tag.TAG", "MainActivity.onResume() called");
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.d("Tag.TAG", "MainActivity.onPause() called");
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.d("Tag.TAG", "MainActivity.onStop() called");
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d("Tag.TAG", "MainActivity.onDestroy() called");
+    }
 
     private void configureComponents() {
 
@@ -71,17 +109,24 @@ public class MainActivity extends AppCompatActivity {
         textViewVehicleMileage = findViewById(R.id.vehicle_mileage_value);
     }
 
+    /**
+     * to retrieve context in OnChanged call back
+     * @return
+     */
     private Context getMyContext(){
         return this;
     }
 
-    private void configureViewModel() {
-        MainViewModel mainViewModel = new MainViewModel();
+    private void configureViewModel(){
+        mainViewModel = new ViewModelProvider(
+                this,
+                MainViewModelFactory.getInstance()).get(MainViewModel.class);
 
+        // load list users in textInputLayout with dropDown mode
         mainViewModel.getUsersLiveData().observe(this, new Observer<List<UserItem>>() {
             @Override
             public void onChanged(List<UserItem> userItems) {
-                Log.d("MainActivity", "onChanged() called with: userItems = [" + userItems + "]");
+                Log.d(Tag.TAG, "MainActivity.onChanged() called with: userItems = [" + userItems + "]");
                 ArrayAdapter userItemsAdapter = new ArrayAdapter(getMyContext(), R.layout.list_item, userItems);
                 AutoCompleteTextView autoCompleteTextView = (AutoCompleteTextView) textInputLayoutUsers.getEditText();
                 autoCompleteTextView.setAdapter(userItemsAdapter);
@@ -90,18 +135,26 @@ public class MainActivity extends AppCompatActivity {
                     public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
                         UserItem userItem = (UserItem) userItemsAdapter.getItem(position);
                         int userId = userItem.getId();
-                        configureDetailViewModel(mainViewModel, userId);
+                        mainViewModel.setUserId(userId);
                     }
                 });
             }
         });
+
+        // When user change
+        mainViewModel.getUserIdLiveData().observe(this, new Observer<Integer>() {
+            @Override
+            public void onChanged(Integer integer) {
+                configureDetailByUserIdViewModel(integer);
+            }
+        });
     }
 
-    private void configureDetailViewModel(MainViewModel mainViewModel, int userId) {
-        mainViewModel.getDetailViewStateLiveData(userId).observe(this, new Observer<DetailViewState>() {
+    private void configureDetailByUserIdViewModel(int userId){
+        mainViewModel.getDetailViewStateByUserIdLiveData(userId).observe(this , new Observer<DetailViewState>() {
             @Override
             public void onChanged(DetailViewState detailViewState) {
-                Log.d("MainActivity", "onChanged() called with: detailViewState = [" + detailViewState + "]");
+                Log.d("Tag.TAG", "MainActivity.configureDetailViewModel -> onChanged() called with: detailViewState = [" + detailViewState + "]");
                 textViewUserId.setText(detailViewState.getUserId());
                 textViewUserName.setText(detailViewState.getUserName());
                 textViewUserEmail.setText(detailViewState.getUserEmail());
@@ -120,5 +173,4 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-
 }

@@ -17,16 +17,33 @@ public class UserRepository {
         return usersLiveData;
     };
 
+    private User findUserById(int id) {
+        for (User user : SampleUser.getUsers()) {
+            if (user.getId() == id){
+                return user;
+            }
+        }
+        return null;
+    }
+
     public LiveData<User> getUserByIdLiveData(int id){
         MutableLiveData<User> userLiveData = new MutableLiveData<>();
 
-        for (User user : SampleUser.getUsers()) {
-            if (user.getId() == id){
-                userLiveData.setValue(user);
-                return userLiveData;
-            }
+        User user = findUserById(id);
+        if (user != null) {
+            userLiveData.setValue(user);
+            return userLiveData;
         }
-
         return null;
     }
+
+    public LiveData<Integer> getFirstOrValidUserIdByIdLiveData(int id){
+        MutableLiveData<Integer> userIdLiveData = new MutableLiveData<>();
+
+        User user = findUserById(id);
+        if (user == null) user = SampleUser.getUsers()[0];
+        userIdLiveData.setValue(user.getId());
+        return userIdLiveData;
+    }
+
 }

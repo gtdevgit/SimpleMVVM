@@ -117,44 +117,16 @@ public class MainActivity extends AppCompatActivity {
         return this;
     }
 
-    private void configureViewModel(){
+    private void configureViewModel() {
         mainViewModel = new ViewModelProvider(
                 this,
                 MainViewModelFactory.getInstance()).get(MainViewModel.class);
 
-        // load list users in textInputLayout with dropDown mode
-        mainViewModel.getUsersLiveData().observe(this, new Observer<List<UserItem>>() {
-            @Override
-            public void onChanged(List<UserItem> userItems) {
-                Log.d(Tag.TAG, "MainActivity.onChanged() called with: userItems = [" + userItems + "]");
-                ArrayAdapter userItemsAdapter = new ArrayAdapter(getMyContext(), R.layout.list_item, userItems);
-                AutoCompleteTextView autoCompleteTextView = (AutoCompleteTextView) textInputLayoutUsers.getEditText();
-                autoCompleteTextView.setAdapter(userItemsAdapter);
-                autoCompleteTextView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-                        UserItem userItem = (UserItem) userItemsAdapter.getItem(position);
-                        int userId = userItem.getId();
-                        mainViewModel.setUserId(userId);
-                    }
-                });
-            }
-        });
-
-        // When user change
-        mainViewModel.getUserIdLiveData().observe(this, new Observer<Integer>() {
-            @Override
-            public void onChanged(Integer integer) {
-                configureDetailByUserIdViewModel(integer);
-            }
-        });
-    }
-
-    private void configureDetailByUserIdViewModel(int userId){
-        mainViewModel.getDetailViewStateByUserIdLiveData(userId).observe(this , new Observer<DetailViewState>() {
+        mainViewModel.getViewStateLiveData().observe(this, new Observer<DetailViewState>() {
             @Override
             public void onChanged(DetailViewState detailViewState) {
                 Log.d("Tag.TAG", "MainActivity.configureDetailViewModel -> onChanged() called with: detailViewState = [" + detailViewState + "]");
+
                 textViewUserId.setText(detailViewState.getUserId());
                 textViewUserName.setText(detailViewState.getUserName());
                 textViewUserEmail.setText(detailViewState.getUserEmail());
@@ -163,14 +135,38 @@ public class MainActivity extends AppCompatActivity {
                 textViewContractId.setText(detailViewState.getContractId());
                 textViewContractUserId.setText(detailViewState.getContractUserId());
                 textViewContractVehicleId.setText(detailViewState.getContractVehicleId());
-                textViewContractDate.setText(detailViewState.getContractDate());;
+                textViewContractDate.setText(detailViewState.getContractDate());
+                ;
 
                 textViewVehicleId.setText(detailViewState.getVehicleId());
                 textViewVehicleBrand.setText(detailViewState.getVehicleBrand());
                 textViewVehicleModel.setText(detailViewState.getVehicleModel());
                 textViewVehiclePrice.setText(detailViewState.getVehiclePrice());
                 textViewVehicleMileage.setText(detailViewState.getVehicleMileage());
+
+                Log.d(Tag.TAG, "MainActivity.onChanged() called with: userItems = [" + detailViewState.getUserItems() + "]");
+
+                ArrayAdapter userItemsAdapter = new ArrayAdapter(getMyContext(), R.layout.list_item, detailViewState.getUserItems());
+                AutoCompleteTextView autoCompleteTextView = (AutoCompleteTextView) textInputLayoutUsers.getEditText();
+                autoCompleteTextView.setText(detailViewState.getUserName());
+                autoCompleteTextView.setAdapter(userItemsAdapter);
+
+                // update list position with current property type
+                if (detailViewState.getCurrentUserItemPosition() >= 0) {
+                    autoCompleteTextView.setListSelection(detailViewState.getCurrentUserItemPosition());
+                }
+
+                autoCompleteTextView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+                        Log.d(Tag.TAG, "onItemClick()");
+                        UserItem userItem = (UserItem) userItemsAdapter.getItem(position);
+                        int userId = userItem.getId();
+                        mainViewModel.setUserId(userId);
+                    }
+                });
             }
         });
+        mainViewModel.setUserId(-1);
     }
 }

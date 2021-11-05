@@ -3,6 +3,7 @@ package com.example.simplemvvm.ui.view_state;
 import androidx.annotation.NonNull;
 
 import java.util.Date;
+import java.util.List;
 
 public class DetailViewState {
     private final String userId;
@@ -22,7 +23,10 @@ public class DetailViewState {
     private final String contractVehicleId;
     private final String contractDate;
 
-    public DetailViewState(String userId, String userName, String userEmail, String userPhone, String vehicleId, String vehicleBrand, String vehicleModel, String vehicleMileage, String vehiclePrice, String contractId, String contractUserId, String contractVehicleId, String contractDate) {
+    private final List<UserItem> userItems;
+    private final int currentUserItemPosition;
+
+    public DetailViewState(String userId, String userName, String userEmail, String userPhone, String vehicleId, String vehicleBrand, String vehicleModel, String vehicleMileage, String vehiclePrice, String contractId, String contractUserId, String contractVehicleId, String contractDate, List<UserItem> userItems, int currentUserItemPosition) {
         this.userId = userId;
         this.userName = userName;
         this.userEmail = userEmail;
@@ -36,6 +40,8 @@ public class DetailViewState {
         this.contractUserId = contractUserId;
         this.contractVehicleId = contractVehicleId;
         this.contractDate = contractDate;
+        this.userItems = userItems;
+        this.currentUserItemPosition = currentUserItemPosition;
     }
 
     public String getUserId() {
@@ -88,5 +94,13 @@ public class DetailViewState {
 
     public String getContractDate() {
         return contractDate;
+    }
+
+    public List<UserItem> getUserItems() {
+        return userItems;
+    }
+
+    public int getCurrentUserItemPosition() {
+        return currentUserItemPosition;
     }
 }

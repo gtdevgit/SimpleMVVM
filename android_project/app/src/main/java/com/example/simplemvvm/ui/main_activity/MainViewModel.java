@@ -1,4 +1,4 @@
-package com.example.simplemvvm.ui.view_model;
+package com.example.simplemvvm.ui.main_activity;
 
 
 
@@ -15,8 +15,6 @@ import com.example.simplemvvm.data.model.User;
 import com.example.simplemvvm.data.model.Vehicle;
 import com.example.simplemvvm.data.repository.DataRepository;
 import com.example.simplemvvm.debug.Tag;
-import com.example.simplemvvm.ui.view_state.DetailViewState;
-import com.example.simplemvvm.ui.view_state.UserItem;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -33,8 +31,8 @@ public class MainViewModel extends ViewModel {
         Log.d(Tag.TAG, "MainViewModel constructor");
     }
 
-    private MediatorLiveData<DetailViewState> viewStateMediatorLiveData = new MediatorLiveData<>();
-    public LiveData<DetailViewState> getViewStateLiveData() {
+    private MediatorLiveData<MainViewState> viewStateMediatorLiveData = new MediatorLiveData<>();
+    public LiveData<MainViewState> getViewStateLiveData() {
         return viewStateMediatorLiveData;
     }
 
@@ -51,13 +49,13 @@ public class MainViewModel extends ViewModel {
         LiveData<Vehicle> vehicleLiveData = Transformations.switchMap(contractLiveData,
                 contract -> {return dataRepository.getVehicleRepository().getVehiclesByIdLiveData(contract.getId());});
 
-        LiveData<List<UserItem>> userItemsLiveData = Transformations.map(dataRepository.getUserRepository().getUsersLiveData(),
+        LiveData<List<MainViewState.UserItem>> userItemsLiveData = Transformations.map(dataRepository.getUserRepository().getUsersLiveData(),
                 users -> {
-                    List<UserItem> items = new ArrayList<>();
+                    List<MainViewState.UserItem> items = new ArrayList<>();
 
                     for (User user : users){
                         Log.d("", "MainViewModel.getUsersLiveData() -> Transformation.map called with user = [" + user + "]");
-                        items.add(new UserItem(user.getId(), user.getName()));
+                        items.add(new MainViewState.UserItem(user.getId(), user.getName()));
                     }
                     return items;
                 });
@@ -96,9 +94,9 @@ public class MainViewModel extends ViewModel {
             }
         });
 
-        viewStateMediatorLiveData.addSource(userItemsLiveData, new Observer<List<UserItem>>() {
+        viewStateMediatorLiveData.addSource(userItemsLiveData, new Observer<List<MainViewState.UserItem>>() {
             @Override
-            public void onChanged(List<UserItem> userItems) {
+            public void onChanged(List<MainViewState.UserItem> userItems) {
                 Log.d(Tag.TAG, "MainViewModel.getDetailViewStateLiveData->onChanged() called with: usersItems = [" + userItems + "]");
                 Log.d(Tag.TAG, "MainViewModel.getDetailViewStateLiveData call combine 4");
                 combine(userLiveData.getValue(), contractLiveData.getValue(), vehicleLiveData.getValue(), userItems);
@@ -106,15 +104,15 @@ public class MainViewModel extends ViewModel {
         });
     }
 
-    private int findCurrentUserItemPosition(int userId, List<UserItem> userItems){
+    private int findCurrentUserItemPosition(int userId, List<MainViewState.UserItem> userItems){
         for (int i = 0; i < userItems.size(); i++) {
-            UserItem userItem = userItems.get(i);
+            MainViewState.UserItem userItem = userItems.get(i);
             if (userItem.getId() == userId) return i;
         }
         return -1;
     }
 
-    private void combine(User user, Contract contract, Vehicle vehicle, List<UserItem> userItems) {
+    private void combine(User user, Contract contract, Vehicle vehicle, List<MainViewState.UserItem> userItems) {
         if ((user == null) || (contract == null) || (vehicle == null) || (userItems == null))
             return;
 
@@ -128,7 +126,7 @@ public class MainViewModel extends ViewModel {
         int currentUserItemPosition = findCurrentUserItemPosition(user.getId(), userItems);
         Log.d(Tag.TAG, "combine() called with: currentUserItemPosition = [" + currentUserItemPosition + "]");
 
-        DetailViewState detailViewState = new DetailViewState(
+        MainViewState mainViewState = new MainViewState(
                 Integer.toString(user.getId()),
                 user.getName(),
                 user.getEmail(),
@@ -145,6 +143,6 @@ public class MainViewModel extends ViewModel {
                 userItems,
                 currentUserItemPosition);
 
-        viewStateMediatorLiveData.setValue(detailViewState);
+        viewStateMediatorLiveData.setValue(mainViewState);
     }
 }

@@ -1,14 +1,11 @@
-package com.example.simplemvvm.ui.view;
+package com.example.simplemvvm.ui.main_activity;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -18,15 +15,11 @@ import android.widget.TextView;
 
 import com.example.simplemvvm.R;
 import com.example.simplemvvm.debug.Tag;
-import com.example.simplemvvm.ui.view_model.MainViewModel;
-import com.example.simplemvvm.ui.view_model_factory.MainViewModelFactory;
-import com.example.simplemvvm.ui.view_state.DetailViewState;
-import com.example.simplemvvm.ui.view_state.UserItem;
 import com.google.android.material.textfield.TextInputLayout;
 
-import java.util.List;
-
 public class MainActivity extends AppCompatActivity {
+
+    private final int USER_ID_NO_INITIALIZED = -1;
 
     TextInputLayout textInputLayoutUsers;
 
@@ -120,53 +113,57 @@ public class MainActivity extends AppCompatActivity {
     private void configureViewModel() {
         mainViewModel = new ViewModelProvider(
                 this,
-                MainViewModelFactory.getInstance()).get(MainViewModel.class);
+                ViewModelFactory.getInstance()).get(MainViewModel.class);
 
-        mainViewModel.getViewStateLiveData().observe(this, new Observer<DetailViewState>() {
+        mainViewModel.getViewStateLiveData().observe(this, new Observer<MainViewState>() {
             @Override
-            public void onChanged(DetailViewState detailViewState) {
-                Log.d("Tag.TAG", "MainActivity.configureDetailViewModel -> onChanged() called with: detailViewState = [" + detailViewState + "]");
+            public void onChanged(MainViewState mainViewState) {
+                Log.d("Tag.TAG", "MainActivity.configureViewModel -> onChanged() called with: detailViewState = [" + mainViewState + "]");
 
-                textViewUserId.setText(detailViewState.getUserId());
-                textViewUserName.setText(detailViewState.getUserName());
-                textViewUserEmail.setText(detailViewState.getUserEmail());
-                textViewUserPhone.setText(detailViewState.getUserPhone());
+                textViewUserId.setText(mainViewState.getUserId());
+                textViewUserName.setText(mainViewState.getUserName());
+                textViewUserEmail.setText(mainViewState.getUserEmail());
+                textViewUserPhone.setText(mainViewState.getUserPhone());
 
-                textViewContractId.setText(detailViewState.getContractId());
-                textViewContractUserId.setText(detailViewState.getContractUserId());
-                textViewContractVehicleId.setText(detailViewState.getContractVehicleId());
-                textViewContractDate.setText(detailViewState.getContractDate());
+                textViewContractId.setText(mainViewState.getContractId());
+                textViewContractUserId.setText(mainViewState.getContractUserId());
+                textViewContractVehicleId.setText(mainViewState.getContractVehicleId());
+                textViewContractDate.setText(mainViewState.getContractDate());
                 ;
 
-                textViewVehicleId.setText(detailViewState.getVehicleId());
-                textViewVehicleBrand.setText(detailViewState.getVehicleBrand());
-                textViewVehicleModel.setText(detailViewState.getVehicleModel());
-                textViewVehiclePrice.setText(detailViewState.getVehiclePrice());
-                textViewVehicleMileage.setText(detailViewState.getVehicleMileage());
+                textViewVehicleId.setText(mainViewState.getVehicleId());
+                textViewVehicleBrand.setText(mainViewState.getVehicleBrand());
+                textViewVehicleModel.setText(mainViewState.getVehicleModel());
+                textViewVehiclePrice.setText(mainViewState.getVehiclePrice());
+                textViewVehicleMileage.setText(mainViewState.getVehicleMileage());
 
-                Log.d(Tag.TAG, "MainActivity.onChanged() called with: userItems = [" + detailViewState.getUserItems() + "]");
+                Log.d(Tag.TAG, "MainActivity.configureViewModel() called with: userItems = [" + mainViewState.getUserItems() + "]");
 
-                ArrayAdapter userItemsAdapter = new ArrayAdapter(getMyContext(), R.layout.list_item, detailViewState.getUserItems());
+                ArrayAdapter userItemsAdapter = new ArrayAdapter(getMyContext(), R.layout.list_item, mainViewState.getUserItems());
                 AutoCompleteTextView autoCompleteTextView = (AutoCompleteTextView) textInputLayoutUsers.getEditText();
-                autoCompleteTextView.setText(detailViewState.getUserName());
+                // update text with current user name
+                // must setText before adapter else setTest clear adapter
+                autoCompleteTextView.setText(mainViewState.getUserName());
+                // load users list in dropdown
                 autoCompleteTextView.setAdapter(userItemsAdapter);
 
-                // update list position with current property type
-                if (detailViewState.getCurrentUserItemPosition() >= 0) {
-                    autoCompleteTextView.setListSelection(detailViewState.getCurrentUserItemPosition());
+                // update list position with current user position
+                if (mainViewState.getCurrentUserItemPosition() >= 0) {
+                    autoCompleteTextView.setListSelection(mainViewState.getCurrentUserItemPosition());
                 }
 
                 autoCompleteTextView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
                         Log.d(Tag.TAG, "onItemClick()");
-                        UserItem userItem = (UserItem) userItemsAdapter.getItem(position);
+                        MainViewState.UserItem userItem = (MainViewState.UserItem) userItemsAdapter.getItem(position);
                         int userId = userItem.getId();
                         mainViewModel.setUserId(userId);
                     }
                 });
             }
         });
-        mainViewModel.setUserId(-1);
+        // Will be find and load first user.
+        mainViewModel.setUserId(USER_ID_NO_INITIALIZED);
     }
 }

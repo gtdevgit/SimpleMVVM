@@ -1,4 +1,4 @@
-package com.example.simplemvvm.ui.view_model_factory;
+package com.example.simplemvvm.ui.main_activity;
 
 import android.util.Log;
 
@@ -7,9 +7,8 @@ import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.simplemvvm.debug.Tag;
-import com.example.simplemvvm.ui.view_model.MainViewModel;
 
-public class MainViewModelFactory implements ViewModelProvider.Factory{
+public class ViewModelFactory implements ViewModelProvider.Factory{
     @NonNull
     @Override
     public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
@@ -21,18 +20,18 @@ public class MainViewModelFactory implements ViewModelProvider.Factory{
         throw new IllegalArgumentException("Unknown ViewModel class : " + modelClass);
     }
 
-    private volatile static MainViewModelFactory sInstance;
+    private volatile static ViewModelFactory sInstance;
 
-    public MainViewModelFactory() {
+    public ViewModelFactory() {
     }
 
-    public static MainViewModelFactory getInstance() {
+    public static ViewModelFactory getInstance() {
         Log.d(Tag.TAG, "MainViewModelFactory.getInstance() called");
         if (sInstance == null){
-            synchronized (MainViewModelFactory.class) {
+            synchronized (ViewModelFactory.class) {
                 if (sInstance == null) {
                     Log.d(Tag.TAG, "MainViewModelFactory.getInstance() create instance");
-                    sInstance = new MainViewModelFactory();
+                    sInstance = new ViewModelFactory();
                 }
             }
         }

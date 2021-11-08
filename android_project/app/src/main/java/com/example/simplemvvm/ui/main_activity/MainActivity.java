@@ -19,8 +19,6 @@ import com.google.android.material.textfield.TextInputLayout;
 
 public class MainActivity extends AppCompatActivity {
 
-    private final int USER_ID_NO_INITIALIZED = -1;
-
     TextInputLayout textInputLayoutUsers;
 
     TextView textViewUserId;
@@ -158,12 +156,10 @@ public class MainActivity extends AppCompatActivity {
                         Log.d(Tag.TAG, "onItemClick()");
                         MainViewState.UserItem userItem = (MainViewState.UserItem) userItemsAdapter.getItem(position);
                         int userId = userItem.getId();
-                        mainViewModel.setUserId(userId);
+                        mainViewModel.getUserIdMutableLiveData().setValue(userId);
                     }
                 });
             }
         });
-        // Will be find and load first user.
-        mainViewModel.setUserId(USER_ID_NO_INITIALIZED);
     }
 }

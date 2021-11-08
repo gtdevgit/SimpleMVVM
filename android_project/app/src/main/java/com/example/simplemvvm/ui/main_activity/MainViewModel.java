@@ -6,6 +6,7 @@ import android.util.Log;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
@@ -29,6 +30,12 @@ public class MainViewModel extends ViewModel {
     public MainViewModel() {
         // Just for the log
         Log.d(Tag.TAG, "MainViewModel constructor");
+        configureMediatorLiveData();
+    }
+
+    private MutableLiveData<Integer> userIdMutableLiveData = new MutableLiveData<>();
+    public MutableLiveData<Integer> getUserIdMutableLiveData() {
+        return userIdMutableLiveData;
     }
 
     private MediatorLiveData<MainViewState> viewStateMediatorLiveData = new MediatorLiveData<>();
@@ -36,15 +43,16 @@ public class MainViewModel extends ViewModel {
         return viewStateMediatorLiveData;
     }
 
-    public void setUserId(int userId){
-        updateMediatorLiveData(userId);
-    }
+    // viewStateMediatorLiveData will be load with details when user id change.
+    // when user id change view call getUserIdMutableLiveData.setValue(id)
+    private void configureMediatorLiveData(){
+        LiveData<Integer> userIdLiveData = userIdMutableLiveData;
 
-    private void updateMediatorLiveData(int userId){
-        LiveData<Integer> userIdLiveData = dataRepository.getUserRepository().getFirstOrValidUserIdByIdLiveData(userId);
-        LiveData<User> userLiveData = Transformations.switchMap(userIdLiveData,
+        LiveData<Integer> validUserIdLiveData = Transformations.switchMap(userIdLiveData,
+                id -> {return dataRepository.getUserRepository().getFirstOrValidUserIdByIdLiveData(id);});
+        LiveData<User> userLiveData = Transformations.switchMap(validUserIdLiveData,
                 id -> {return dataRepository.getUserRepository().getUserByIdLiveData(id);});
-        LiveData<Contract> contractLiveData = Transformations.switchMap(userIdLiveData,
+        LiveData<Contract> contractLiveData = Transformations.switchMap(validUserIdLiveData,
                 id -> {return dataRepository.getContractRepository().getContractByUserIdLiveData(id);});
         LiveData<Vehicle> vehicleLiveData = Transformations.switchMap(contractLiveData,
                 contract -> {return dataRepository.getVehicleRepository().getVehiclesByIdLiveData(contract.getId());});
@@ -102,6 +110,9 @@ public class MainViewModel extends ViewModel {
                 combine(userLiveData.getValue(), contractLiveData.getValue(), vehicleLiveData.getValue(), userItems);
             }
         });
+
+        // Will be find and load first user.
+        userIdMutableLiveData.setValue(USER_ID_NOT_INITIALIZED);
     }
 
     private int findCurrentUserItemPosition(int userId, List<MainViewState.UserItem> userItems){
